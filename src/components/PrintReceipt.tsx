@@ -14,9 +14,6 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
   
   // One shared receipt number for all devices in this receipt
   const receiptNumberDisplay = primaryReceipt.receipt_number;
-
-  // Mask password on printed receipt
-  const maskedPassword = primaryReceipt.device_password ? '****' : '';
   const nepaliDate = formatNepaliDate(primaryReceipt.received_date);
   
   // Font styles for professional receipt look
@@ -105,37 +102,27 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
         </div>
       </div>
 
-      {/* Customer Info */}
+      {/* Customer Info - name and contact on same line, no password on paper */}
       <div style={{ marginBottom: '3mm', fontSize: '9pt' }}>
-        {/* Customer name */}
-        <div className="flex items-baseline" style={{ marginBottom: '0.5mm' }}>
-          <span style={{ ...labelFont, width: '24mm', flexShrink: 0,}}>Customer Name :</span>
-          <span 
-            className="flex-1 border-b border-black" 
-            style={{ ...dataFont, paddingBottom: '0.5px', minHeight: '4mm',borderBottom: ''     }}
-          >
-            {primaryReceipt.customer_name}
-          </span>
-        </div>
-        {/* Separate contact line */}
-        <div className="flex items-baseline" style={{ marginBottom: '0.5mm' }}>
-          <span style={{ ...labelFont, width: '13mm', flexShrink: 0 }}>Contact :</span>
-          <span 
-            className="flex-1 border-b border-black" 
-            style={{ ...dataFont, paddingBottom: '0.5px', minHeight: '4mm' }}
-          >
-            {primaryReceipt.customer_phone}
-          </span>
-        </div>
-        {/* Password line - closer and slightly higher */}
-        <div className="flex items-baseline" style={{ marginTop: '-0.5mm' }}>
-          <span style={{ ...labelFont, width: '7mm', flexShrink: 0 }}>PW :</span>
-          <span 
-            className="flex-1 border-b border-black" 
-            style={{ ...dataFont, paddingBottom: '0.5px', minHeight: '4mm' }}
-          >
-            {maskedPassword}
-          </span>
+        <div className="flex items-baseline" style={{ marginBottom: '0.5mm', gap: '4mm' }}>
+          <div className="flex items-baseline" style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ ...labelFont, width: '24mm', flexShrink: 0 }}>Customer Name :</span>
+            <span
+              className="flex-1 border-b border-black"
+              style={{ ...dataFont, paddingBottom: '0.5px', minHeight: '4mm' }}
+            >
+              {primaryReceipt.customer_name}
+            </span>
+          </div>
+          <div className="flex items-baseline" style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ ...labelFont, width: '16mm', flexShrink: 0 }}>Contact :</span>
+            <span
+              className="flex-1 border-b border-black"
+              style={{ ...dataFont, paddingBottom: '0.5px', minHeight: '4mm' }}
+            >
+              {primaryReceipt.customer_phone}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -191,7 +178,7 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
       </table>
 
       {/* Terms & Conditions with सूचना - Centered */}
-      <div className="text-center" style={{ fontSize: '11pt', lineHeight: 4, marginBottom: '0.5mm' }}>
+      <div className="text-center" style={{ fontSize: '8pt', lineHeight: 4, marginBottom: '0.5mm' }}>
         <p style={{ margin: 0 }}>
           <span style={{ fontWeight: 600 }}>सूचना:</span> मर्मतका लागि छाडिएको सामान २ महिनासम्म लिन नआएमा हराए वा बिग्रिएमा त्यसको जिम्मेवाही कम्पनीले लिने छैन।
         </p>
@@ -199,7 +186,7 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
 
       {/* VAT Notice with asterisk - Centered */}
       <div className="text-center" style={{ marginBottom: '1mm' }}>
-        <p style={{ ...labelFont, fontSize: '12pt', margin: 0 }}>
+        <p style={{ ...labelFont, fontSize: '8pt', margin: 0 }}>
       <div  style={{marginBottom: '1mm',height: '0.0mm'}}></div>
           * मर्मत खर्चमा अतिरिक्त मूल्य अभिवृद्धि कर (VAT) लाग्नेछ।
         </p>
@@ -208,11 +195,11 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
       {/* Signature Section - Moved up, compact */}
       <div className="flex justify-between" style={{ marginBottom: '1mm', padding: '0 13mm' }}>
         <div style={{ textAlign: 'center', width: '28mm' }}>
-          <div style={{ borderBottom: '1px solid #000', marginBottom: '0.5mm', height: '8mm' }}></div>
+          <div style={{ borderBottom: '1px solid #000', marginBottom: '0.5mm', height: '2mm' }}></div>
           <p style={{ ...labelFont, fontSize: '10.5pt', margin: 0 }}>EDD</p>
         </div>
         <div style={{ textAlign: 'center', width: '28mm' }}>
-          <div style={{ borderBottom: '1px solid #000', marginBottom: '0.5mm', height: '8mm' }}></div>
+          <div style={{ borderBottom: '1px solid #000', marginBottom: '0.5mm', height: '2mm' }}></div>
           <p style={{ ...labelFont, fontSize: '10.5pt', margin: 0 }}>For MKTN</p>
         </div>
       </div>
@@ -225,11 +212,11 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
         width: '100%', 
         height: '1px', 
         backgroundColor: '#000', 
-        marginBottom: '1.5mm'
+        marginBottom: '3.5mm'
       }}></div>
 
       {/* Return Slip Notice - At the very bottom */}
-      <div className="text-center" style={{ marginBottom: '5mm' }}>
+      <div className="text-center" style={{ marginBottom: '7mm' }}>
         <p style={{ 
           ...headerFont, 
           fontSize: '11pt', 
@@ -248,11 +235,15 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
       <div className="text-center">
         <p style={{ 
           ...headerFont, 
+          
           border: '`2px solid #000',
           fontSize: '15pt', 
           fontWeight:600,
           margin: 1, 
-          letterSpacing: '1.5px'
+          letterSpacing: '1.5px',
+          marginTop: '-20px'
+        
+          
 
           
         }}>

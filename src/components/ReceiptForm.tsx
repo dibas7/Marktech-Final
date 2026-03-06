@@ -141,12 +141,12 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
   };
 
   const addDevice = () => {
-    if (devices.length < 3) {
+    if (devices.length < 4) {
       setDevices(prev => [...prev, createEmptyDevice()]);
     }
   };
 
-  const canAddMoreDevices = devices.length < 3;
+  const canAddMoreDevices = devices.length < 4;
 
   const removeDevice = (deviceId: string) => {
     if (devices.length > 1) {

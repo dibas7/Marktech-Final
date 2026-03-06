@@ -10,16 +10,55 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer, User, Laptop, FileText, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReceiptStatus } from '@/types/receipt';
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function ReceiptDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: receipt, isLoading } = useReceipt(id);
   const updateStatus = useUpdateReceiptStatus();
 
+  const [isDeliveryDialogOpen, setIsDeliveryDialogOpen] = useState(false);
+  const [deliveryDate, setDeliveryDate] = useState<string>('');
+  const [deliveryCondition, setDeliveryCondition] = useState<string>('');
+  const [deliveredBy, setDeliveredBy] = useState<string>('');
+
   const handleStatusChange = (status: ReceiptStatus) => {
-    if (id) {
-      updateStatus.mutate({ id, status });
+    if (!id) return;
+
+    if (status === 'delivered') {
+      // Prefill dialog fields from existing data when available
+      const baseDate =
+        receipt?.actual_delivery_date ||
+        new Date().toISOString().split('T')[0];
+      setDeliveryDate(baseDate);
+      setDeliveryCondition(receipt?.delivery_condition || '');
+      setDeliveredBy(receipt?.delivered_by || '');
+      setIsDeliveryDialogOpen(true);
+      return;
     }
+
+    updateStatus.mutate({ id, status });
+  };
+
+  const handleConfirmDelivery = () => {
+    if (!id) return;
+    updateStatus.mutate({
+      id,
+      status: 'delivered',
+      delivery_condition: deliveryCondition,
+      delivered_by: deliveredBy,
+      delivery_date: deliveryDate || undefined,
+    });
+    setIsDeliveryDialogOpen(false);
   };
 
   if (isLoading) {
@@ -197,6 +236,18 @@ export default function ReceiptDetail() {
                   </p>
                 </div>
               )}
+              {receipt.delivery_condition && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Condition</p>
+                  <p className="font-medium">{receipt.delivery_condition}</p>
+                </div>
+              )}
+              {receipt.delivered_by && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Deliver By / To</p>
+                  <p className="font-medium">{receipt.delivered_by}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -208,6 +259,52 @@ export default function ReceiptDetail() {
           status={receipt.status}
         />
       </main>
+
+      {/* Delivery details dialog when setting status to Delivered */}
+      <Dialog open={isDeliveryDialogOpen} onOpenChange={setIsDeliveryDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delivery details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="delivery-date">Delivery date</Label>
+              <Input
+                id="delivery-date"
+                type="date"
+                value={deliveryDate}
+                onChange={(e) => setDeliveryDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="delivery-condition">Condition</Label>
+              <Input
+                id="delivery-condition"
+                value={deliveryCondition}
+                onChange={(e) => setDeliveryCondition(e.target.value)}
+                placeholder="e.g., Working fine, Minor scratches"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="delivered-by">Deliver by / to</Label>
+              <Input
+                id="delivered-by"
+                value={deliveredBy}
+                onChange={(e) => setDeliveredBy(e.target.value)}
+                placeholder="Staff name or person receiving"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeliveryDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmDelivery}>
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -17,6 +17,9 @@ export interface Receipt {
   estimated_delivery_date: string | null;
   actual_delivery_date: string | null;
   device_password: string | null;
+  /** Optional extra delivery details captured when status is set to delivered. */
+  delivery_condition?: string | null;
+  delivered_by?: string | null;
   status: ReceiptStatus;
   created_at: string;
   updated_at: string;

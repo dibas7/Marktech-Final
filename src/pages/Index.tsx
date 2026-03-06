@@ -4,7 +4,7 @@ import { StatsCards } from '@/components/StatsCards';
 import { SearchBar } from '@/components/SearchBar';
 import { ReceiptList } from '@/components/ReceiptList';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Download, Upload } from 'lucide-react';
+import { Plus, FileText, Download, Upload, Settings as SettingsIcon } from 'lucide-react';
 import { useReceipts } from '@/hooks/useReceipts';
 import { Link } from 'react-router-dom';
 import { exportReceiptsToCsv } from '@/utils/exportCsv';
@@ -73,6 +73,12 @@ const Index = () => {
             <p className="text-muted-foreground">Manage customer device receipts</p>
           </div>
           <div className="flex gap-2">
+            <Button asChild variant="outline" size="lg">
+              <Link to="/settings">
+                <SettingsIcon className="w-5 h-5 mr-2" />
+                Settings
+              </Link>
+            </Button>
             <Button 
               variant="outline" 
               size="lg"

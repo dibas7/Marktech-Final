@@ -9,6 +9,7 @@ import NewReceipt from "./pages/NewReceipt";
 import EditReceipt from "./pages/EditReceipt";
 import ReceiptDetail from "./pages/ReceiptDetail";
 import PrintReceiptPage from "./pages/PrintReceiptPage";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
@@ -75,6 +76,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <PrintReceiptPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         }
       />

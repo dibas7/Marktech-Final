@@ -214,6 +214,20 @@
     border: none !important;
     outline: none !important;
   }
+
+  /* Ensure outer layout wrappers don't add grey/blur borders in print preview */
+  .bg-muted,
+  .bg-background {
+    background: white !important;
+  }
+
+  .min-h-screen {
+    min-height: auto !important;
+  }
+
+  .p-6 {
+    padding: 0 !important;
+  }
   
   .no-print {
     display: none !important;

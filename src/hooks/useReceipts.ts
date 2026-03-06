@@ -13,17 +13,31 @@ export function useReceipts(searchQuery?: string) {
         .order('receipt_number', { ascending: false });
 
       if (searchQuery) {
+        const q = searchQuery.trim();
         // Check if it's a numeric search (receipt number) - strip leading zeros
-        const numericValue = parseInt(searchQuery, 10);
-        const isNumeric = /^\d+$/.test(searchQuery) && !isNaN(numericValue);
-        
+        const numericValue = parseInt(q, 10);
+        const isNumeric = /^\d+$/.test(q) && !isNaN(numericValue);
+
+        const orParts: string[] = [
+          `customer_phone.ilike.%${q}%`,
+          `customer_name.ilike.%${q}%`,
+          `device_type.ilike.%${q}%`,
+          `device_model.ilike.%${q}%`,
+          `serial_number.ilike.%${q}%`,
+          `accessories.ilike.%${q}%`,
+        ];
+
         if (isNumeric) {
-          // Search by receipt number (handles "0001", "1", "4869", etc.)
-          query = query.eq('receipt_number', numericValue);
-        } else {
-          // Search by phone or customer name
-          query = query.or(`customer_phone.ilike.%${searchQuery}%,customer_name.ilike.%${searchQuery}%`);
+          // Allow searching by receipt number (handles "0001", "1", "4869", etc.)
+          orParts.push(`receipt_number.eq.${numericValue}`);
         }
+
+        const normalizedStatus = q.toLowerCase();
+        if (['received', 'in_progress', 'completed', 'delivered', 'cancelled'].includes(normalizedStatus)) {
+          orParts.push(`status.eq.${normalizedStatus}`);
+        }
+
+        query = query.or(orParts.join(','));
       }
 
       const { data, error } = await query;
@@ -137,10 +151,31 @@ export function useUpdateReceiptStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: ReceiptStatus }) => {
+    mutationFn: async ({
+      id,
+      status,
+      delivery_condition,
+      delivered_by,
+      delivery_date,
+    }: {
+      id: string;
+      status: ReceiptStatus;
+      delivery_condition?: string;
+      delivered_by?: string;
+      /** Explicit delivery date (YYYY-MM-DD). Falls back to today when omitted. */
+      delivery_date?: string;
+    }) => {
       const updateData: Partial<Receipt> = { status };
+
       if (status === 'delivered') {
-        updateData.actual_delivery_date = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0];
+        updateData.actual_delivery_date = delivery_date || today;
+        if (delivery_condition !== undefined) {
+          updateData.delivery_condition = delivery_condition;
+        }
+        if (delivered_by !== undefined) {
+          updateData.delivered_by = delivered_by;
+        }
       }
 
       const { data, error } = await supabase

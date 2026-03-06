@@ -31,6 +31,8 @@ const formSchema = z.object({
   estimated_delivery_date: z.string().optional(),
   device_password: z.string().optional(),
   received_date: z.date().optional(),
+  delivery_condition: z.string().optional(),
+  delivered_by: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -68,6 +70,8 @@ export default function EditReceipt() {
         estimated_delivery_date: receipt.estimated_delivery_date || '',
         device_password: receipt.device_password || '',
         received_date: receipt.received_date ? new Date(receipt.received_date) : undefined,
+        delivery_condition: receipt.delivery_condition || '',
+        delivered_by: receipt.delivered_by || '',
       });
     }
   }, [receipt, reset]);
@@ -89,6 +93,8 @@ export default function EditReceipt() {
       estimated_delivery_date: data.estimated_delivery_date || null,
       device_password: data.device_password || null,
       received_date: data.received_date ? data.received_date.toISOString() : undefined,
+      delivery_condition: data.delivery_condition || null,
+      delivered_by: data.delivered_by || null,
     });
     
     navigate(`/receipt/${id}`);
@@ -247,6 +253,22 @@ export default function EditReceipt() {
                   id="device_password"
                   {...register('device_password')}
                   placeholder="Device password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="delivery_condition">Delivery Condition</Label>
+                <Input
+                  id="delivery_condition"
+                  {...register('delivery_condition')}
+                  placeholder="Condition at delivery (optional)"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="delivered_by">Deliver By / To</Label>
+                <Input
+                  id="delivered_by"
+                  {...register('delivered_by')}
+                  placeholder="Who delivered / received (optional)"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2 lg:col-span-4">
