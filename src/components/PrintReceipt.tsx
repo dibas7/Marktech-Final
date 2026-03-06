@@ -139,9 +139,9 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
           <tr style={{ backgroundColor: '#f0f0f0' }}>
             <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '6mm' }}>S.N</th>
             <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '40mm' }}>Particulars</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center' }}>Problem</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '47mm' }}>Model NO.</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '32mm' }}>Serial No.</th>
+            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '50mm'}}>Problem</th>
+            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '30mm' }}>Model NO.</th>
+            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '50mm' }}>Serial No/Service Tag</th>
           </tr>
         </thead>
         <tbody>
