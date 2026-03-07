@@ -227,12 +227,13 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
       <div style={{ flex: 1, minHeight: '0.5mm' }}></div>
 
       {/* Horizontal line above Please return this slip */}
-      <div style={{ 
-        width: '100%', 
-        height: '1px', 
-        backgroundColor: '#000', 
-        marginBottom: '4mm'
-      }}></div>
+      <div
+        style={{
+          width: '100%',
+          borderTop: '1px solid #000',
+          marginBottom: '3mm',
+        }}
+      ></div>
 
       {/* Return Slip Notice - At the very bottom */}
       <div className="text-center" style={{ marginBottom: '7mm' }}>
@@ -251,21 +252,25 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
       </div>
 
       {/* Contact us for - Combined text */}
-      <div className="text-center">
+      <div className="text-center" >
         <p style={{ 
           ...headerFont, 
           
           border: '`2px solid #000',
+          
           fontSize: '15pt', 
           fontWeight:600,
           margin: 1, 
           letterSpacing: '1.5px',
-          marginTop: '-20px'
-        
+          marginTop: '-1px',
+          
           
 
           
         }}>
+          
+          
+  
           PLEASE RETURN THIS SLIP
         </p>
       </div>
