@@ -30,15 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('user_id', userId)
         .eq('role', 'admin')
         .maybeSingle();
-      
+
       if (error) {
-        console.error('Error checking admin role:', error);
         return false;
       }
-      
+
       return !!data;
-    } catch (err) {
-      console.error('Error in checkAdminRole:', err);
+    } catch {
       return false;
     }
   };
