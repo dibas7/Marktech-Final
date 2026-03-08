@@ -84,7 +84,7 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
             textUnderlineOffset: '2px',
             fontWeight: 700
           }}>
-            MAINTENANCE RECEIPT
+            MAINTENANCE RECEIPT 
           </h2>
         </div>
         
