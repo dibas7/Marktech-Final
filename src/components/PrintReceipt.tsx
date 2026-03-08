@@ -204,10 +204,10 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
       <div className="text-center" style={{ fontSize: '8pt', lineHeight: 1.6, marginBottom: '1mm' }}>
         <p style={{ margin: 0 }}>
           <span style={{ fontWeight: 600 }}>सूचना:</span>{' '}
-          मर्मतका लागि छाडिएको सामान २ महिनासम्म लिन नआएमा हराए वा बिग्रिएमा त्यसको जिम्मेवाही कम्पनीले लिने छैन।
+          मर्मतको लागि छाडेको सामान ६० दिनसम्म नलगि थप क्षति भए वा हराएमा कम्पनी जबाफदेही हुनेछैन। मर्मत खर्चमा अतिरिक्त मूल्य अभिवृद्धि कर (VAT) लाग्नेछ।
         </p>
         <p style={{ ...labelFont, fontSize: '8pt', margin: 0 }}>
-          * मर्मत खर्चमा अतिरिक्त मूल्य अभिवृद्धि कर (VAT) लाग्नेछ।
+          
         </p>
       </div>
 
