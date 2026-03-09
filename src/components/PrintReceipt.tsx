@@ -149,54 +149,63 @@ export function PrintReceipt({ receipts }: PrintReceiptProps) {
         </div>
       </div>
 
-      {/* Devices Table */}
+      {/* Devices Table - top/bottom borders only, no inner row lines */}
       <table 
         className="w-full border-collapse" 
         style={{ 
           marginBottom: '1mm',
           fontSize: '10pt',
-          borderCollapse: 'collapse'
+          borderCollapse: 'collapse',
+          tableLayout: 'fixed'
         }}
       >
         <thead>
           <tr style={{ backgroundColor: '#f0f0f0' }}>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '6mm' }}>S.N</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '35mm' }}>Particulars</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '45mm'}}>Problem</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '25mm' }}>Model No.</th>
-            <th style={{ ...labelFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '30mm' }}>Serial No/Service Tag</th>
+            <th style={{ ...labelFont, borderTop: '1px solid #000', borderLeft: '1px solid #000', borderRight: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '6mm' }}>S.N</th>
+            <th style={{ ...labelFont, borderTop: '1px solid #000', borderLeft: '1px solid #000', borderRight: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '35mm' }}>Particulars</th>
+            <th style={{ ...labelFont, borderTop: '1px solid #000', borderLeft: '1px solid #000', borderRight: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '55mm'}}>Problem</th>
+            <th style={{ ...labelFont, borderTop: '1px solid #000', borderLeft: '1px solid #000', borderRight: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '20mm' }}>Model No.</th>
+            <th style={{ ...labelFont, borderTop: '1px solid #000', borderLeft: '1px solid #000', borderRight: '1px solid #000', padding: '0.8mm', textAlign: 'center', width: '25mm' }}>S.N/Service Tag</th>
           </tr>
         </thead>
         <tbody>
-          {receipts.slice(0, 4).map((receipt, index) => (
+          {receipts.slice(0, 4).map((receipt, index) => {
+            const isLastRow = receipts.length >= 4 && index === 3;
+            const cellBorderBase = { borderLeft: '1px solid #000', borderRight: '1px solid #000' };
+            const cellBorderBottom = { borderBottom: '1px solid #000' };
+            return (
             <tr key={receipt.id}>
-              <td style={{ ...dataFont, border: '1px solid #000', padding: '0.8mm', textAlign: 'center', height: '7mm', verticalAlign: 'top' }}>
+              <td style={{ ...dataFont, ...cellBorderBase, ...(isLastRow ? cellBorderBottom : {}), padding: '0.8mm', textAlign: 'center', height: '7mm', verticalAlign: 'top' }}>
                 {index + 1}
               </td>
-              <td style={{ ...dataFont, border: '1px solid #000', padding: '0.8mm', height: '7mm', verticalAlign: 'top', textTransform: 'capitalize', fontSize: '8.5pt' }}>
+              <td style={{ ...dataFont, ...cellBorderBase, ...(isLastRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm', verticalAlign: 'top', textTransform: 'capitalize', fontSize: '8.5pt', wordBreak: 'normal', overflowWrap: 'break-word' }}>
                 {receipt.device_type}
                 {receipt.accessories && <span style={{ display: 'block', fontSize: '7pt', color: '#555' }}>({receipt.accessories})</span>}
               </td>
-              <td style={{ ...dataFont, border: '1px solid #000', padding: '0.8mm', height: '7mm', verticalAlign: 'top', fontSize: '8.5pt' }}>
+              <td style={{ ...dataFont, ...cellBorderBase, ...(isLastRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm', verticalAlign: 'top', fontSize: '8.5pt', wordBreak: 'normal', overflowWrap: 'break-word' }}>
                 {receipt.problem_description}
               </td>
-              <td style={{ ...dataFont, border: '1px solid #000', padding: '0.8mm', height: '7mm', verticalAlign: 'top', fontSize: '8.5pt' }}>
+              <td style={{ ...dataFont, ...cellBorderBase, ...(isLastRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm', verticalAlign: 'top', fontSize: '8.5pt', wordBreak: 'normal', overflowWrap: 'break-word' }}>
                 {receipt.device_model || ''}
               </td>
-              <td style={{ ...dataFont, border: '1px solid #000', padding: '0.8mm', height: '7mm', verticalAlign: 'top', fontSize: '8.5pt' }}>
+              <td style={{ ...dataFont, ...cellBorderBase, ...(isLastRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm', verticalAlign: 'top', fontSize: '8.5pt', wordBreak: 'normal', overflowWrap: 'break-word' }}>
                 {receipt.serial_number || ''}
               </td>
             </tr>
-          ))}
-          {receipts.length < 4 && Array.from({ length: 4 - Math.min(receipts.length, 4) }).map((_, i) => (
+          );})}
+          {receipts.length < 4 && Array.from({ length: 4 - Math.min(receipts.length, 4) }).map((_, i) => {
+            const isLastEmptyRow = i === 4 - Math.min(receipts.length, 4) - 1;
+            const cellBorderBase = { borderLeft: '1px solid #000', borderRight: '1px solid #000' };
+            const cellBorderBottom = { borderBottom: '1px solid #000' };
+            return (
             <tr key={`empty-${i}`}>
-              <td style={{ border: '1px solid #000', padding: '0.8mm', textAlign: 'center', height: '7mm' }}></td>
-              <td style={{ border: '1px solid #000', padding: '0.8mm', height: '7mm' }}></td>
-              <td style={{ border: '1px solid #000', padding: '0.8mm', height: '7mm' }}></td>
-              <td style={{ border: '1px solid #000', padding: '0.8mm', height: '7mm' }}></td>
-              <td style={{ border: '1px solid #000', padding: '0.8mm', height: '7mm' }}></td>
+              <td style={{ ...cellBorderBase, ...(isLastEmptyRow ? cellBorderBottom : {}), padding: '0.8mm', textAlign: 'center', height: '7mm' }}></td>
+              <td style={{ ...cellBorderBase, ...(isLastEmptyRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm' }}></td>
+              <td style={{ ...cellBorderBase, ...(isLastEmptyRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm' }}></td>
+              <td style={{ ...cellBorderBase, ...(isLastEmptyRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm' }}></td>
+              <td style={{ ...cellBorderBase, ...(isLastEmptyRow ? cellBorderBottom : {}), padding: '0.8mm', height: '7mm' }}></td>
             </tr>
-          ))}
+          );})}
         </tbody>
       </table>
 
