@@ -1,9 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/---
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/yourusername/public_html/
-    - /bin/cp -R * $DEPLOYPATH/public_html/
+    - export DEPLOYPATH=/home1/marktech/public_html/
     - /bin/cp -R * $DEPLOYPATH
