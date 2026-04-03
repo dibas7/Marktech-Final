@@ -2,4 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home1/marktech/public_html/
-    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R public_html/. $DEPLOYPATH

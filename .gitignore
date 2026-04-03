@@ -21,3 +21,6 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
+# Local zip of build output (not for repo)
+dist.zip
