@@ -9,7 +9,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useCreateReceipt } from '@/hooks/useReceipts';
 import { Loader2, Save, User, Laptop, Eye, EyeOff, Plus, Trash2, CalendarIcon } from 'lucide-react';
 import { CustomerAutocomplete } from '@/components/CustomerAutocomplete';
-import { useRef, useState, KeyboardEvent } from 'react';
+import { useRef, useState, KeyboardEvent, useMemo } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -73,6 +73,11 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
   const [deviceSuggestions_, setDeviceSuggestions_] = useState<Record<string, string[]>>({});
   const [suggestionOpen, setSuggestionOpen] = useState<Record<string, boolean>>({});
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<Record<string, number>>({});
+  const deviceNameInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const deviceKeyboardDebugEnabled = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return import.meta.env.DEV || window.localStorage.getItem('debug-device-autocomplete') === '1';
+  }, []);
 
   // Refs for Enter key navigation
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -149,10 +154,27 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
     deviceId: string,
     nextFocus: () => void
   ) => {
+    // Prevent duplicate handling when multiple key listeners are active.
+    if (e.defaultPrevented) {
+      return;
+    }
+
     const suggestions = deviceSuggestions_[deviceId] ?? [];
     const isOpen = suggestionOpen[deviceId] && suggestions.length > 0;
+    const key = e.key;
 
-    if (e.key === 'ArrowDown' && suggestions.length > 0) {
+    if (deviceKeyboardDebugEnabled && (key === 'ArrowDown' || key === 'ArrowUp' || key === 'Enter' || key === 'Escape')) {
+      console.log('[DeviceAutocomplete] keydown', {
+        key,
+        deviceId,
+        isOpen,
+        suggestionsCount: suggestions.length,
+        selectedIndex: selectedSuggestionIndex[deviceId] ?? -1,
+        activeElementIsInput: document.activeElement === e.currentTarget,
+      });
+    }
+
+    if (key === 'ArrowDown' && suggestions.length > 0) {
       e.preventDefault();
       setSuggestionOpen(prev => ({ ...prev, [deviceId]: true }));
       setSelectedSuggestionIndex(prev => {
@@ -160,10 +182,12 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
         const next = (current + 1) % suggestions.length;
         return { ...prev, [deviceId]: next };
       });
+      // Keep focus anchored on the input for accessible combobox navigation.
+      requestAnimationFrame(() => deviceNameInputRefs.current[deviceId]?.focus());
       return;
     }
 
-    if (e.key === 'ArrowUp' && suggestions.length > 0) {
+    if (key === 'ArrowUp' && suggestions.length > 0) {
       e.preventDefault();
       setSuggestionOpen(prev => ({ ...prev, [deviceId]: true }));
       setSelectedSuggestionIndex(prev => {
@@ -171,16 +195,18 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
         const next = current <= 0 ? suggestions.length - 1 : current - 1;
         return { ...prev, [deviceId]: next };
       });
+      requestAnimationFrame(() => deviceNameInputRefs.current[deviceId]?.focus());
       return;
     }
 
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (key === 'Enter' && !e.shiftKey) {
       if (isOpen) {
         e.preventDefault();
         const selectedIndex = selectedSuggestionIndex[deviceId] ?? 0;
         const suggestion = suggestions[selectedIndex];
         if (suggestion) {
           selectDeviceSuggestion(deviceId, suggestion);
+          requestAnimationFrame(() => deviceNameInputRefs.current[deviceId]?.focus());
         }
         return;
       }
@@ -188,7 +214,7 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
       return;
     }
 
-    if (e.key === 'Escape' && suggestionOpen[deviceId]) {
+    if (key === 'Escape' && suggestionOpen[deviceId]) {
       e.preventDefault();
       setSuggestionOpen(prev => ({ ...prev, [deviceId]: false }));
       setSelectedSuggestionIndex(prev => ({ ...prev, [deviceId]: -1 }));
@@ -370,7 +396,10 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
             <div className="space-y-2 relative">
               <Label>Device Name</Label>
               <Input
-                ref={(el) => setDeviceRef(device.id, 'deviceName', el)}
+                ref={(el) => {
+                  setDeviceRef(device.id, 'deviceName', el);
+                  deviceNameInputRefs.current[device.id] = el;
+                }}
                 value={device.device_type}
                 onChange={(e) => handleDeviceNameChange(device.id, e.target.value)}
                 placeholder="e.g., Dell Laptop, HP Printer"
@@ -391,6 +420,11 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
                   }, 150);
                 }}
                 autoComplete="off"
+                onKeyDownCapture={(e) =>
+                  handleDeviceSuggestionKeyDown(e, device.id, () => {
+                    deviceRefs.current[device.id]?.modelNumber?.focus();
+                  })
+                }
                 onKeyDown={(e) =>
                   handleDeviceSuggestionKeyDown(e, device.id, () => {
                     deviceRefs.current[device.id]?.modelNumber?.focus();
