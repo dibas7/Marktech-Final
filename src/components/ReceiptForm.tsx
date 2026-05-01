@@ -72,6 +72,7 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deviceSuggestions_, setDeviceSuggestions_] = useState<Record<string, string[]>>({});
   const [suggestionOpen, setSuggestionOpen] = useState<Record<string, boolean>>({});
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState<Record<string, number>>({});
 
   // Refs for Enter key navigation
   const phoneRef = useRef<HTMLInputElement>(null);
@@ -130,14 +131,68 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
       );
       setDeviceSuggestions_(prev => ({ ...prev, [deviceId]: filtered }));
       setSuggestionOpen(prev => ({ ...prev, [deviceId]: filtered.length > 0 }));
+      setSelectedSuggestionIndex(prev => ({ ...prev, [deviceId]: filtered.length > 0 ? 0 : -1 }));
     } else {
       setSuggestionOpen(prev => ({ ...prev, [deviceId]: false }));
+      setSelectedSuggestionIndex(prev => ({ ...prev, [deviceId]: -1 }));
     }
   };
 
   const selectDeviceSuggestion = (deviceId: string, suggestion: string) => {
     updateDevice(deviceId, 'device_type', suggestion);
     setSuggestionOpen(prev => ({ ...prev, [deviceId]: false }));
+    setSelectedSuggestionIndex(prev => ({ ...prev, [deviceId]: -1 }));
+  };
+
+  const handleDeviceSuggestionKeyDown = (
+    e: KeyboardEvent<HTMLInputElement>,
+    deviceId: string,
+    nextFocus: () => void
+  ) => {
+    const suggestions = deviceSuggestions_[deviceId] ?? [];
+    const isOpen = suggestionOpen[deviceId] && suggestions.length > 0;
+
+    if (e.key === 'ArrowDown' && suggestions.length > 0) {
+      e.preventDefault();
+      setSuggestionOpen(prev => ({ ...prev, [deviceId]: true }));
+      setSelectedSuggestionIndex(prev => {
+        const current = prev[deviceId] ?? -1;
+        const next = (current + 1) % suggestions.length;
+        return { ...prev, [deviceId]: next };
+      });
+      return;
+    }
+
+    if (e.key === 'ArrowUp' && suggestions.length > 0) {
+      e.preventDefault();
+      setSuggestionOpen(prev => ({ ...prev, [deviceId]: true }));
+      setSelectedSuggestionIndex(prev => {
+        const current = prev[deviceId] ?? -1;
+        const next = current <= 0 ? suggestions.length - 1 : current - 1;
+        return { ...prev, [deviceId]: next };
+      });
+      return;
+    }
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      if (isOpen) {
+        e.preventDefault();
+        const selectedIndex = selectedSuggestionIndex[deviceId] ?? 0;
+        const suggestion = suggestions[selectedIndex];
+        if (suggestion) {
+          selectDeviceSuggestion(deviceId, suggestion);
+        }
+        return;
+      }
+      handleEnterNavigation(e, nextFocus);
+      return;
+    }
+
+    if (e.key === 'Escape' && suggestionOpen[deviceId]) {
+      e.preventDefault();
+      setSuggestionOpen(prev => ({ ...prev, [deviceId]: false }));
+      setSelectedSuggestionIndex(prev => ({ ...prev, [deviceId]: -1 }));
+    }
   };
 
   const addDevice = () => {
@@ -319,20 +374,54 @@ export function ReceiptForm({ onSuccess }: ReceiptFormProps) {
                 value={device.device_type}
                 onChange={(e) => handleDeviceNameChange(device.id, e.target.value)}
                 placeholder="e.g., Dell Laptop, HP Printer"
-                onBlur={() => setTimeout(() => setSuggestionOpen(prev => ({ ...prev, [device.id]: false })), 150)}
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={Boolean(suggestionOpen[device.id] && (deviceSuggestions_[device.id]?.length ?? 0) > 0)}
+                aria-controls={`device-suggestions-${device.id}`}
+                aria-activedescendant={
+                  suggestionOpen[device.id] &&
+                  (selectedSuggestionIndex[device.id] ?? -1) >= 0
+                    ? `device-suggestion-${device.id}-${selectedSuggestionIndex[device.id]}`
+                    : undefined
+                }
+                onBlur={() => {
+                  setTimeout(() => {
+                    setSuggestionOpen(prev => ({ ...prev, [device.id]: false }));
+                    setSelectedSuggestionIndex(prev => ({ ...prev, [device.id]: -1 }));
+                  }, 150);
+                }}
                 autoComplete="off"
-                onKeyDown={(e) => handleEnterNavigation(e, () => {
-                  deviceRefs.current[device.id]?.modelNumber?.focus();
-                })}
+                onKeyDown={(e) =>
+                  handleDeviceSuggestionKeyDown(e, device.id, () => {
+                    deviceRefs.current[device.id]?.modelNumber?.focus();
+                  })
+                }
               />
               {suggestionOpen[device.id] && (deviceSuggestions_[device.id]?.length ?? 0) > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-auto">
+                <div
+                  id={`device-suggestions-${device.id}`}
+                  role="listbox"
+                  className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-auto"
+                >
                   {deviceSuggestions_[device.id].map((suggestion, idx) => (
                     <button
                       key={idx}
+                      id={`device-suggestion-${device.id}-${idx}`}
+                      role="option"
+                      aria-selected={(selectedSuggestionIndex[device.id] ?? -1) === idx}
                       type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                      onMouseDown={() => selectDeviceSuggestion(device.id, suggestion)}
+                      className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                        (selectedSuggestionIndex[device.id] ?? -1) === idx
+                          ? 'bg-accent text-accent-foreground'
+                          : 'hover:bg-accent hover:text-accent-foreground'
+                      }`}
+                      onMouseEnter={() =>
+                        setSelectedSuggestionIndex(prev => ({ ...prev, [device.id]: idx }))
+                      }
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        selectDeviceSuggestion(device.id, suggestion);
+                      }}
                     >
                       {suggestion}
                     </button>
