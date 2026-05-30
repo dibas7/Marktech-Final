@@ -112,6 +112,7 @@ export function useCreateReceipt() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['receipts'] });
+      queryClient.invalidateQueries({ queryKey: ['receipt-stats'] });
       queryClient.invalidateQueries({ queryKey: ['grouped-receipts'] });
       toast.success('Receipt created successfully');
     },
@@ -138,6 +139,7 @@ export function useUpdateReceipt() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['receipts'] });
+      queryClient.invalidateQueries({ queryKey: ['receipt-stats'] });
       queryClient.invalidateQueries({ queryKey: ['receipt', data.id] });
       toast.success('Receipt updated successfully');
     },
@@ -190,6 +192,7 @@ export function useUpdateReceiptStatus() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['receipts'] });
+      queryClient.invalidateQueries({ queryKey: ['receipt-stats'] });
       queryClient.invalidateQueries({ queryKey: ['receipt', data.id] });
       toast.success('Status updated successfully');
     },

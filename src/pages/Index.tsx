@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
+import { DashboardStatusFilter } from '@/types/receipt';
 import { Header } from '@/components/Header';
 import { StatsCards } from '@/components/StatsCards';
 import { SearchBar } from '@/components/SearchBar';
@@ -14,8 +15,15 @@ import { useQueryClient } from '@tanstack/react-query';
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<DashboardStatusFilter>('all');
   const [isUploading, setIsUploading] = useState(false);
   const { data: receipts, isLoading } = useReceipts(searchQuery || undefined);
+
+  const filteredReceipts = useMemo(() => {
+    if (!receipts) return undefined;
+    if (statusFilter === 'all') return receipts;
+    return receipts.filter((receipt) => receipt.status === statusFilter);
+  }, [receipts, statusFilter]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -92,8 +100,8 @@ const Index = () => {
               variant="outline" 
               size="lg"
               onClick={() => {
-                if (receipts && receipts.length > 0) {
-                  exportReceiptsToCsv(receipts, 'receipts_download');
+                if (filteredReceipts && filteredReceipts.length > 0) {
+                  exportReceiptsToCsv(filteredReceipts, 'receipts_download');
                   toast.success('CSV downloaded successfully!');
                 } else {
                   toast.error('No receipts to download');
@@ -113,7 +121,7 @@ const Index = () => {
         </div>
 
         {/* Stats Cards */}
-        <StatsCards />
+        <StatsCards activeFilter={statusFilter} onFilterChange={setStatusFilter} />
 
         {/* Search & Recent Receipts */}
         <div className="space-y-4">
@@ -124,7 +132,7 @@ const Index = () => {
           
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
           
-          <ReceiptList receipts={receipts} isLoading={isLoading} />
+          <ReceiptList receipts={filteredReceipts} isLoading={isLoading} />
         </div>
       </main>
     </div>

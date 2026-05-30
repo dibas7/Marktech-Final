@@ -1,4 +1,6 @@
 ---
+# Himalayan Host cPanel — Git deployment
+# Deploys the pre-built SPA in public_html/ (generate with: npm run build:host)
 deployment:
   tasks:
     - export DEPLOYPATH=/home1/marktech/public_html/

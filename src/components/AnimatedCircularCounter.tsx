@@ -1,13 +1,21 @@
 import { useCountAnimation } from '@/hooks/useCountAnimation';
 import { Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface AnimatedCircularCounterProps {
   value: number;
   label?: string;
+  isActive?: boolean;
+  onClick?: () => void;
 }
 
-export function AnimatedCircularCounter({ value, label = 'Total Customers' }: AnimatedCircularCounterProps) {
+export function AnimatedCircularCounter({
+  value,
+  label = 'Total Customers',
+  isActive = false,
+  onClick,
+}: AnimatedCircularCounterProps) {
   const { count, progress } = useCountAnimation(value, 2000);
   
   // Circle properties
@@ -21,7 +29,23 @@ export function AnimatedCircularCounter({ value, label = 'Total Customers' }: An
   const sequenceNumbers = Array.from({ length: Math.min(value, 12) }, (_, i) => i + 1);
 
   return (
-    <Card className="shadow-card bg-gradient-to-br from-primary/10 to-primary/5">
+    <Card
+      role="button"
+      tabIndex={0}
+      aria-pressed={isActive}
+      aria-label={`${label}: ${value}. Show all records.`}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
+      className={cn(
+        'shadow-card bg-gradient-to-br from-primary/10 to-primary/5 cursor-pointer transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        isActive && 'ring-2 ring-primary ring-offset-2 shadow-md bg-gradient-to-br from-primary/20 to-primary/10'
+      )}
+    >
       <CardContent className="p-4 flex flex-col items-center justify-center h-full min-h-[160px]">
         <div className="relative">
           {/* Background circle */}

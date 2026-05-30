@@ -1,5 +1,8 @@
 export type ReceiptStatus = 'received' | 'in_progress' | 'completed' | 'delivered' | 'cancelled';
 
+/** Dashboard summary-card filter: all records or a single status. */
+export type DashboardStatusFilter = 'all' | ReceiptStatus;
+
 export interface Receipt {
   id: string;
   receipt_number: number;
